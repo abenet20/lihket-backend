@@ -1,5 +1,5 @@
 const generateToken = require("../../utils/generationToken");
-const database = require("../dbControllers/db_mysql");
+const database = require("../dbControllers/db_connection");
 const bcrypt = require("bcrypt");
 const { body, validationResult } = require("express-validator");
 
@@ -16,41 +16,23 @@ exports.login = [
 
     try {
       //check if user exists in the database
-      database.query(
+      const [user] = await database.query(
         "SELECT * FROM users WHERE username = ? AND is_deleted = 0",
-        [username],
-        (err, results) => {
-          if (err) {
-            console.error("Database error:", err);
-            return res.status(500).json({ error: "Database error" });
-          }
-          const user = results[0];
-          if (!user) {
-            return res.status(401).json({ error: "Invalid username" });
-          }
-
-          //compare password
-          bcrypt.compare(password, user.password, (err, isMatch) => {
-            if (err) {
-              console.log(err);
-              return res
-                .status(500)
-                .json({ error: "Error comparing passwords" });
-            }
-
-            if (!isMatch) {
-              return res
-                .status(401)
-                .json({ error: "Invalid username or password" });
-            }
-
-            //create JWT token
-            const token = generateToken(user.user_id);
-
-            res.status(201).json({success: true , token, role: user.role});
-          });
-        }
+        [username]
       );
+
+      //compare password
+      const isMatch = await bcrypt.compare(password, user[0].password);
+
+      if (!isMatch) {
+        return res.status(401).json({ error: "Invalid username or password" });
+      }
+
+      //create JWT token
+      const token = generateToken(user.user_id);
+
+      res.status(201).json({ success: true, token, role: user[0].role });
+
       //catch any errors
     } catch (error) {
       console.error("Error during login:", error);
