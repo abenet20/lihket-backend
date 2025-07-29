@@ -8,16 +8,6 @@ const UniitLeaderRoutes = require("./routes/unitLeaderRoutes")
 const studentRoutes = require("./routes/studentRoutes");
 const parentRoutes = require("./routes/parentRoutes");
 
-// CORS config
-const corsOptions = {
-  origin: 'https://lihket.vercel.app',
-  credentials: true,
-};
-
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // for preflight
-
-
 app.use(express.json());
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
