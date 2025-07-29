@@ -1,0 +1,27 @@
+{
+  "name": "my-first-node",
+  "version": "1.0.0",
+  "description": "nofr trial",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "ethiopian-date": "^0.0.6",
+    "express": "^5.1.0",
+    "express-session": "^1.18.1",
+    "express-validator": "^7.2.1",
+    "geez": "^3.1.0",
+    "generate-password": "^1.7.1",
+    "jsonwebtoken": "^9.0.2",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.14.2",
+    "nodemailer": "^7.0.5",
+    "xlsx": "^0.18.5"
+  }
+}
