@@ -13,6 +13,9 @@ const database = mysql.createPool({
     password : "Y1890b?jk",
     host : "gateway01.us-west-2.prod.aws.tidbcloud.com",
     database : "lihket",
+  ssl: {
+  rejectUnauthorized: true,
+  }
 });
 
 module.exports = database;
