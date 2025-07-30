@@ -21,8 +21,14 @@ exports.login = [
         [username]
       );
 
+        // ✅ Check if user exists before accessing user[0]
+      if (!user.length) {
+        return res.status(401).json({ error: "Invalid username or password" });
+      }
+      
       //compare password
       const isMatch = await bcrypt.compare(password, user[0].password);
+      
 
       if (!isMatch) {
         return res.status(401).json({ error: "Invalid username or password" });
