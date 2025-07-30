@@ -8,7 +8,12 @@ const UniitLeaderRoutes = require("./routes/unitLeaderRoutes")
 const studentRoutes = require("./routes/studentRoutes");
 const parentRoutes = require("./routes/parentRoutes");
 
-app.use(cors());
+app.use(cors({
+  origin: "http://localhost:8080", // your frontend local dev server
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true
+}));
+
 app.use(express.json());
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
