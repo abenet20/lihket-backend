@@ -8,6 +8,7 @@ const UniitLeaderRoutes = require("./routes/unitLeaderRoutes")
 const studentRoutes = require("./routes/studentRoutes");
 const parentRoutes = require("./routes/parentRoutes");
 
+app.use(cors());
 app.use(express.json());
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
