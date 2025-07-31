@@ -36,7 +36,7 @@ exports.addStudent = [
   body("grade")
     .isLength({ min: 1 })
     .withMessage("phone should contain 1 or 2 two numbers"),
-  body("studentClass").isLength({ min: 2 }),
+  body("studentClass").isLength({ min: 1 }).withMessage("class should contain 1 or 2 letters"),
   body("gender")
     .isLength({ min: 1 })
     .withMessage("gender should contain 1 letters")
