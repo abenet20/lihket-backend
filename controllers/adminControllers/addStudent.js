@@ -36,7 +36,7 @@ exports.addStudent = [
   body("grade")
     .isLength({ min: 1 })
     .withMessage("phone should contain 1 or 2 two numbers"),
-  body("studentClass").isLength({ min: 0 }),
+  body("studentClass").isLength({ min: 2 }),
   body("gender")
     .isLength({ min: 1 })
     .withMessage("gender should contain 1 letters")
@@ -68,7 +68,7 @@ exports.addStudent = [
       students.gender AS student_gender,
       students.phone AS student_phone,
       students.grade AS student_grade,
-      students.class AS student_class,
+      students.class_id AS student_class,
       parents.parent_id AS parent_parent_id,
       parents.name AS parent_name,
       parents.phone AS parent_phone
@@ -178,7 +178,7 @@ exports.addStudent = [
 
       // const [studentResult] =
       await database.query(
-        "INSERT INTO students (`user_id`, `name`,  `age`, `gender`, `phone`, `grade`, `class`, `parent_id`) VALUES (?,?,?,?,?,?,?,?)",
+        "INSERT INTO students (`user_id`, `name`,  `age`, `gender`, `phone`, `grade`, `class_id`, `parent_id`) VALUES (?,?,?,?,?,?,?,?)",
         [
           studenetUserId,
           name,

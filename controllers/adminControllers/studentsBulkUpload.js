@@ -68,7 +68,7 @@ exports.bulkUpload = [
       students.gender AS student_gender,
       students.phone AS student_phone,
       students.grade AS student_grade,
-      students.class AS student_class,
+      students.class_id AS student_class,
       parents.parent_id AS parent_parent_id,
       parents.name AS parent_name,
       parents.phone AS parent_phone
@@ -172,7 +172,7 @@ exports.bulkUpload = [
 
       // const [studentResult] =
       await database.query(
-        "INSERT INTO students (`user_id`, `name`,  `age`, `gender`, `phone`, `grade`, `class`, `parent_id`) VALUES (?,?,?,?,?,?,?,?)",
+        "INSERT INTO students (`user_id`, `name`,  `age`, `gender`, `phone`, `grade`, `class_id`, `parent_id`) VALUES (?,?,?,?,?,?,?,?)",
         [
           studenetUserId,
           student.name,
