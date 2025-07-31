@@ -19,7 +19,7 @@ exports.addExam = [
     .isLength({ min: 1 })
     .withMessage("the exam should atleast be for one class"),
 
-    body("details")
+  body("details")
     .optional()
     .isString()
     .withMessage("Details must be a string")
@@ -40,7 +40,6 @@ exports.addExam = [
       [userId]
     );
 
-
     if (!teacher.length) {
       return res.status(404).json({ error: "Teacher not found" });
     }
@@ -51,7 +50,6 @@ exports.addExam = [
       "SELECT * FROM subjects WHERE id = ? AND is_deleted = 0",
       [subjectId]
     );
-
 
     const { date, classes, details } = req.body;
     let existinClasses = [];
@@ -72,7 +70,7 @@ exports.addExam = [
       } else {
         existinClasses.push(classId);
       }
-      res.status(201).json({
+      return res.status(201).json({
         success: true,
         message: "Exam added successfully",
         savedClasses: savedClasses,
@@ -84,23 +82,61 @@ exports.addExam = [
 
 exports.getExams = [
   verifyToken,
-    async (req, res) => {
-        const userId = req.user.id; // Assuming user ID is stored in req.user.id
-        try {
-            const [teacher] = await database.query(
-                "SELECT * FROM teachers WHERE user_id = ? AND is_deleted = 0",
-                [userId]
-            );
-        const [exams] = await database.query(
-            "SELECT * FROM exams WHERE teacher_id =? AND is_deleted = 0"
-        );
-        if (!exams.length) {
-            return res.status(404).json({ error: "No exams found" });
-        }
-        res.status(200).json({ success: true, exams });
-        } catch (error) {
-        console.error("Error fetching exams:", error);
-        res.status(500).json({ error: "Internal server error" });
-        }
-    },
+  async (req, res) => {
+    const userId = req.user.id; // Assuming user ID is stored in req.user.id
+    try {
+      const [teacher] = await database.query(
+        "SELECT * FROM teachers WHERE user_id = ? AND is_deleted = 0",
+        [userId]
+      );
+      const [exams] = await database.query(
+        "SELECT * FROM exam_schedules WHERE teacher_id =? AND is_deleted = 0",
+        [teacher[0].teacher_id]
+      );
+      if (!exams.length) {
+        return res.status(404).json({ error: "No exams found" });
+      }
+      res.status(200).json({ success: true, exams });
+    } catch (error) {
+      console.error("Error fetching exams:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  },
+];
+
+exports.deleteExam = [
+  verifyToken,
+  body("examId")
+    .isLength({ min: 1 })
+    .withMessage("exam id should contain atleast 1 number")
+    .isNumeric()
+    .withMessage("exam id should be a number"),
+
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const userId = req.user.id;
+    try {
+    const [teacher] = await database.query(
+      "SELECT * FROM teachers WHERE user_id = ? AND is_deleted = 0",
+      [userId]
+    );
+
+    await database.query(
+      "UPDATE exam_schedules SET is_deleted = 1 WHERE teacher_id =?",
+      [teacher[0].teacher_id]
+    );
+
+    return res.status(201).json({
+      success: true,
+      message: "Exam deleted successfully",
+    });
+    } catch (error) {
+      console.error("Error deleting exams:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  },
 ];
