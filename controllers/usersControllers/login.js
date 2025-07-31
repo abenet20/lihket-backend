@@ -35,7 +35,7 @@ exports.login = [
       }
 
       //create JWT token
-      const token = generateToken(user.user_id);
+      const token = generateToken(user[0].user_id);
 
       res.status(201).json({ success: true, token, role: user[0].role });
 

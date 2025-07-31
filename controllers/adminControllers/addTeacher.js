@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const { body, validationResult } = require("express-validator");
 const generator = require("generate-password");
 const verifyToken = require("../../middleware/verifyToken.js");
+const { send } = require("express/lib/response.js");
 
 exports.addTeacher = [
   verifyToken,
@@ -46,14 +47,11 @@ exports.addTeacher = [
     .withMessage("age should contain atleast 1 number")
     .isNumeric()
     .withMessage("age must be number"),
-  body("subject")
-    .isLength({ min: 4 })
-    .withMessage("subject should contain atleast 4 letters")
-    .trim()
-    .notEmpty()
-    .withMessage("subject should not be empty")
-    .matches(/^[a-zA-Z\s]+$/)
-    .withMessage("subject must only contain letters and spaces"),
+  body("subjectId")
+    .isLength({ min: 1 })
+    .withMessage("subject should contain atleast 1 letters")
+    .isNumeric()
+    .withMessage("subject must be number"),
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -77,7 +75,7 @@ exports.addTeacher = [
         assigned_grades,
         gender,
         age,
-        subject,
+        subjectId,
       } = req.body;
 
       // Check if the teacher already exists
@@ -105,19 +103,20 @@ exports.addTeacher = [
       const userId = userResult.insertId;
 
       await database.query(
-        "INSERT INTO teachers (`user_id`, `name`, `gender`, `age`, `phone`, `subject`, `qualification`, `assigned_classes`) VALUES (?,?,?,?,?,?,?,?)",
+        "INSERT INTO teachers (`user_id`, `name`, `gender`, `age`, `phone`, `subject_id`, `qualification`, `assigned_classes`) VALUES (?,?,?,?,?,?,?,?)",
         [
           userId,
           name,
           gender,
           age,
           phone,
-          subject,
+          subjectId,
           qualification,
           assigned_grades,
         ]
       );
 
+      // send(phone, `Dear Mr/Ms. ${name} you have been successfully registered to lihket sms. Your username is ${username} and password is ${password}.`);
       return res.status(201).json({
         message: "Teacher registered successfully",
         Teacher: { username: username, password: password },

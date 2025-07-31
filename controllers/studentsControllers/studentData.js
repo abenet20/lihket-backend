@@ -14,7 +14,7 @@ exports.studentData = [
             FROM users
             JOIN students ON users.user_id = students.user_id
             JOIN parents ON parents.parent_id = students.parent_id
-            WHERE users.user_id = ?  AND is_deleted = 0`,
+            WHERE users.user_id = ?`,
         [req.user.id]
       );
 
