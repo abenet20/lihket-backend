@@ -7,22 +7,24 @@ exports.attendanceStudentsList = [
   async (req, res) => {
     const userId = req.user.id;
     try {
-const [teacher] = await database.query(
-      `SELECT * FROM teachers WHERE user_id = ?`,
-      [userId]
-    );
+      const [teacher] = await database.query(
+        `SELECT * FROM teachers WHERE user_id = ?`,
+        [userId]
+      );
 
-    const [classroom] = await database.query(
-      `SELECT * FROM classes WHERE teacher_id = ?`,
-      [teacher[0].id]
-    );
+      const [classroom] = await database.query(
+        `SELECT * FROM classes WHERE teacher_id = ?`,
+        [teacher[0].id]
+      );
       // Fetching students list
       const [studentsList] = await database.query(
         `SELECT * FROM students WHERE class_id = ?`,
         [classroom[0].id]
       );
       if (studentsList.length === 0) {
-        return res.status(404).json({ message: "No students found in this class." });
+        return res
+          .status(404)
+          .json({ message: "No students found in this class." });
       }
       res.status(200).json({
         message: "Students list fetched successfully.",
@@ -32,6 +34,5 @@ const [teacher] = await database.query(
       console.error("Error fetching students list:", error);
       res.status(500).json({ message: "Internal server error." });
     }
-  }
+  },
 ];
-         
