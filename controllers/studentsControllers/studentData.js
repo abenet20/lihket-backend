@@ -10,7 +10,7 @@ exports.studentData = [
       const [studentData] = await database.query(
         `SELECT users.user_id, 
             users.name, students.grade, classes.name AS className, students.phone, students.student_id,
-            parents.name AS parentName, parents.phone AS parentPhone, classes.class_id AS classId,
+            parents.name AS parentName, parents.phone AS parentPhone, classes.class_id AS classId
             FROM users
             JOIN students ON users.user_id = students.user_id
             JOIN parents ON parents.parent_id = students.parent_id
