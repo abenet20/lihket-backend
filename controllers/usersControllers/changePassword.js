@@ -2,6 +2,7 @@ const database = require("../dbControllers/db_connection");
 const bcrypt = require("bcrypt");
 const { body, validationResult } = require("express-validator");
 const verifyToken = require("../../middleware/verifyToken");
+const { send } = require("../senders/smsSender");
 
 exports.changePassword = [
   verifyToken,
