@@ -17,7 +17,7 @@ exports.changePassword = [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { oldpassword, newPassword } = req.body;
+    const { oldPassword, newPassword } = req.body;
     const userId = req.user.id;
 
     try {
@@ -26,7 +26,7 @@ exports.changePassword = [
         [userId]
       );
 
-      const is_match = await bcrypt.compare(oldpassword, user[0].password);
+      const is_match = await bcrypt.compare(oldPassword, user[0].password);
       if (!is_match) {
         return res.status(400).json({
           success: false,
@@ -34,7 +34,7 @@ exports.changePassword = [
         });
       }
 
-      if (oldpassword === newPassword) {
+      if (oldPassword === newPassword) {
         return res.status(400).json({
           success: false,
           message: "New password cannot be the same as old password",
