@@ -5,23 +5,19 @@ const generator = require("generate-password");
 const database = require("../dbControllers/db_connection.js");
 const verifyToken = require("../../middleware/verifyToken.js");
 const bcrypt = require("bcrypt");
-const {send} = require("../senders/smsSender.js");
-const multer = require('multer');
+const { send } = require("../senders/smsSender.js");
+const multer = require("multer");
 
 // Use memory storage instead of disk
 const upload = multer({ storage: multer.memoryStorage() });
 
 exports.bulkUpload = [
   verifyToken,
-  upload.single('excelFile'),
+  upload.single("excelFile"),
   async (req, res) => {
-  if (!req.file) return res.status(400).send('No file uploaded.');
+    if (!req.file) return res.status(400).send("No file uploaded.");
 
-    // const workbook = xlsx.readFile(
-      // path.join(__dirname, "../../lihket_students_upload_template.xlsx")
-    //   req.file.buffer, { type: 'buffer' }
-    // );
-    const workbook = xlsx.read(req.file.buffer, { type: 'buffer' });
+    const workbook = xlsx.read(req.file.buffer, { type: "buffer" });
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
     const data = xlsx.utils.sheet_to_json(worksheet);
@@ -105,8 +101,8 @@ exports.bulkUpload = [
         if (
           student.name === existingStudent.student_name &&
           student.grade === existingStudent.student_grade &&
-          student.parentName === existingStudent.parent_name &&
-          student.parentPhone === existingStudent.parent_phone
+          student.parentName == existingStudent.parent_name &&
+          student.parentPhone == existingStudent.parent_phone
         ) {
           unregistered.push(student);
           isDuplicate = true;
@@ -117,7 +113,6 @@ exports.bulkUpload = [
       const studentHashed = await bcrypt.hash(student.studentPassword, 10);
       const parentHashed = await bcrypt.hash(student.parentPassword, 10);
 
-    
       const [userResult] = await database.query(
         "INSERT INTO users (`name`, `username`, `password`, `role`) VALUES (?,?,?,?)",
         [student.name, student.studentUsername, studentHashed, "student"]
@@ -127,7 +122,10 @@ exports.bulkUpload = [
       let isParentExist = false;
       let parentId = null;
       for (const parent of parents) {
-        if (parent.name == student.parentName && parent.phone == student.parentPhone) {
+        if (
+          parent.name == student.parentName &&
+          parent.phone == student.parentPhone
+        ) {
           isParentExist = true;
           parentId = parent.parent_id;
           parentUsername = parent.username;
@@ -172,7 +170,6 @@ exports.bulkUpload = [
         `You have been registered successfully with username: ${student.studentUsername} and password: ${student.studentPassword}.`
       );
       registered.push(student);
-      
     }
 
     createNewXlsx(registered, "registered students.xlsx");
