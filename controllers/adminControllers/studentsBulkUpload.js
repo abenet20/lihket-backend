@@ -6,13 +6,22 @@ const database = require("../dbControllers/db_connection.js");
 const verifyToken = require("../../middleware/verifyToken.js");
 const bcrypt = require("bcrypt");
 const {send} = require("../senders/smsSender.js");
+const multer = require('multer');
+
+// Use memory storage instead of disk
+const upload = multer({ storage: multer.memoryStorage() });
 
 exports.bulkUpload = [
-  // verifyToken,
+  verifyToken,
+  upload.single('excelFile'),
   async (req, res) => {
-    const workbook = xlsx.readFile(
-      path.join(__dirname, "../../lihket_students_upload_template.xlsx")
-    );
+  if (!req.file) return res.status(400).send('No file uploaded.');
+
+    // const workbook = xlsx.readFile(
+      // path.join(__dirname, "../../lihket_students_upload_template.xlsx")
+    //   req.file.buffer, { type: 'buffer' }
+    // );
+    const workbook = xlsx.read(req.file.buffer, { type: 'buffer' });
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
     const data = xlsx.utils.sheet_to_json(worksheet);
@@ -108,38 +117,7 @@ exports.bulkUpload = [
       const studentHashed = await bcrypt.hash(student.studentPassword, 10);
       const parentHashed = await bcrypt.hash(student.parentPassword, 10);
 
-      // const [userResult] = await database.query(
-      //   "INSERT INTO users (`name`, `username`, `password`, `role`) VALUES (?,?,?,?)",
-      //   [student.name, student.username, studentHashed, "student"]
-      // );
-
-      // const userId = userResult.insertId;
-
-      // const [studentResult] = await database.query(
-      //   "INSERT INTO students (`user_id`, `name`,  `age`, `gender`, `phone`, `grade`, `class`) VALUES (?,?,?,?,?,?,?)",
-      //   [
-      //     userId,
-      //     student.name,
-      //     student.age,
-      //     student.gender,
-      //     student.phone,
-      //     student.grade,
-      //     student.studentClass,
-      //   ]
-      // );
-      // const studentId = studentResult.insertId;
-
-      // const [parentUserResult] = await database.query(
-      //   "INSERT INTO users (`name`, `username`, `password`, `role`) VALUES (?,?,?,?)",
-      //   [student.parentName, student.parentUsername, parentHashed, "parent"]
-      // );
-      // const parentId = parentUserResult.insertId;
-
-      // await database.query(
-      //   "INSERT INTO parents (`user_id`, `name`, `phone`,`student_id`) VALUES (?,?,?,?)",
-      //   [parentId, student.parentName, student.parentPhone, studentId]
-      // );
-
+    
       const [userResult] = await database.query(
         "INSERT INTO users (`name`, `username`, `password`, `role`) VALUES (?,?,?,?)",
         [student.name, student.studentUsername, studentHashed, "student"]
