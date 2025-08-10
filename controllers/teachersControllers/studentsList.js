@@ -12,14 +12,30 @@ exports.attendanceStudentsList = [
         [userId]
       );
 
+      if (teacher.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "No teacher found.",
+        });
+      }
+
+
       const [classroom] = await database.query(
-        `SELECT * FROM classes WHERE teacher_id = ?`,
-        [teacher[0].id]
+        `SELECT * FROM classes WHERE homeroom_teacher = ?`,
+        [teacher[0].teacher_id]
       );
+
+      if (!classroom.length) {
+        return res.status(404).json({
+          success: false,
+          message: "No classroom found for this teacher.",
+        });
+      }
+
       // Fetching students list
       const [studentsList] = await database.query(
         `SELECT * FROM students WHERE class_id = ?`,
-        [classroom[0].id]
+        [classroom[0].class_id]
       );
       if (studentsList.length === 0) {
         return res
