@@ -13,7 +13,6 @@ const { bulkUpload } = require("../controllers/adminControllers/studentsBulkUplo
 const { addTeacher } = require("../controllers/adminControllers/addTeacher");
 const { addClass } = require("../controllers/adminControllers/addClass");
 const { removeStudent } = require("../controllers/adminControllers/remove");
-const {addScores} = require("../controllers/teachersControllers/addScores");
 const { removeTeacher } = require("../controllers/adminControllers/remove");
 const {announcements, addAnnouncement, deleteAnnouncement} = require("../controllers/adminControllers/announcement");
 
@@ -28,7 +27,6 @@ router.post("/add/teacher", addTeacher);
 router.post("/add/class", addClass);
 router.post("/remove/student", removeStudent);
 router.post("/remove/teacher", removeTeacher);
-router.post("/add/scores", addScores);
 router.post("/announcements", announcements);
 router.post("/add/announcement", addAnnouncement);
 router.post("/delete/announcement", deleteAnnouncement);
