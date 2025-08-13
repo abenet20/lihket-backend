@@ -37,7 +37,7 @@ exports.login = [
       //create JWT token
       const token = generateToken(user[0].user_id);
 
-      res.status(201).json({ success: true, token, role: user[0].role });
+      res.status(201).json({ success: true, token, role: user[0].role, name: user[0].name, grade: user[0].grade });
 
       //catch any errors
     } catch (error) {
