@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const { body, validationResult } = require("express-validator");
 const generator = require("generate-password");
 const verifyToken = require("../../middleware/verifyToken.js");
-const { send } = require("express/lib/response.js");
+const { send } = require("../senders/smsSender.js");
 
 exports.addTeacher = [
   verifyToken,
@@ -116,7 +116,7 @@ exports.addTeacher = [
         ]
       );
 
-      // send(phone, `Dear Mr/Ms. ${name} you have been successfully registered to lihket sms. Your username is ${username} and password is ${password}.`);
+      send(phone, `Dear Mr/Ms. ${name} you have been successfully registered to lihket sms. Your username is ${username} and password is ${password}.`);
       return res.status(201).json({
         message: "Teacher registered successfully",
         Teacher: { username: username, password: password },

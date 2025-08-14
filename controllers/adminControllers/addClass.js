@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const { body, validationResult } = require("express-validator");
 const generator = require("generate-password");
 const verifyToken = require("../../middleware/verifyToken.js");
+const { send } = require("../senders/smsSender.js");
 
 exports.addClass = [
   body("grade")
@@ -39,6 +40,7 @@ exports.addClass = [
     const { grade, section, roomTeacher } = req.body;
 
     try {
+
       const [existingClasses] = await database.query("SELECT * FROM classes");
       for (const existingClass of existingClasses) {
         if (
@@ -52,14 +54,35 @@ exports.addClass = [
         }
       }
 
+      const [teacher] = await database.query(`
+        SELECT * FROM teachers WHERE teacher_id = ?`,
+      [roomTeacher]
+      );
+
+      if(teacher.length === 0){
+        return res.status(400).json({
+            message: "teacher not found"
+          });
+      }
+
       const className = `${grade}${section}`;
       const [newClass] = await database.query(
         "INSERT INTO classes (`name`, `grade`, `section`, `homeroom_teacher`) VALUES (?,?,?,?)",
         [className, grade, section, roomTeacher]
       );
 
+      send(teacher[0].phone, `Dear ${teacher[0].name} you have been assigned as room teacher for section ${className}`);
+
       return res.status(201).json({
-        newClass,
+        success: true,
+        message: "class added successfully",
+        class: {
+          id: newClass.insertId,
+          name: className,
+          grade,
+          section,
+          homeroom_teacher: roomTeacher,
+        },
       });
     } catch (error) {
       return res.status(500).json({
