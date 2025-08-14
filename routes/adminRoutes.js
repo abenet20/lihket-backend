@@ -14,7 +14,7 @@ const { addTeacher } = require("../controllers/adminControllers/addTeacher");
 const { addClass } = require("../controllers/adminControllers/addClass");
 const { removeStudent } = require("../controllers/adminControllers/remove");
 const { removeTeacher } = require("../controllers/adminControllers/remove");
-const {announcements, addAnnouncement, deleteAnnouncement} = require("../controllers/adminControllers/announcement");
+const {announcements, addAnnouncement, deleteAnnouncement, updateAnnouncement} = require("../controllers/adminControllers/announcement");
 
 
 router.post("/students", students);
@@ -29,6 +29,7 @@ router.post("/remove/student", removeStudent);
 router.post("/remove/teacher", removeTeacher);
 router.post("/announcements", announcements);
 router.post("/add/announcement", addAnnouncement);
+router.post("/update/announcement", updateAnnouncement);
 router.post("/delete/announcement", deleteAnnouncement);
 
 
