@@ -189,7 +189,8 @@ exports.updateAnnouncement = [
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const { announcementId, announcement, status } = req.body;
+    const { announcementId ,title, content, audience, priority, targetedGroups, status } =
+      req.body;
     const userId = req.user.id;
     if (!userId) {
       return res.status(401).json({ error: "Unauthorized: User ID not found" });
@@ -206,10 +207,17 @@ SET
     priority = ?, 
     targeted_groups = ?, 
     status = ? 
-WHERE ann_id = ? AND created_by = ?`
-,
-        [title, content, audience, priority, targetedGroups, status, announcementId, userId]
-
+WHERE ann_id = ? AND created_by = ?`,
+        [
+          title,
+          content,
+          audience,
+          priority,
+          targetedGroups,
+          status,
+          announcementId,
+          userId,
+        ]
       );
 
       return res.status(200).json({
