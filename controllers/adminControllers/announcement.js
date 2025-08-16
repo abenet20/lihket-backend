@@ -8,11 +8,21 @@ exports.announcements = [
     try {
       //getting announcemnts
       const [announcements] = await database.query(`
-  SELECT a.*, v.views, admins.name AS announcedBy
+  SELECT a.ann_id AS id,
+  a.title AS title,
+  a.content AS content,
+  a.audience AS audience,
+  a.priority AS priority,
+  a.created_at AS createdAt,
+  a.status AS status,
+  a.targeted_groups AS tagetGroups,
+  v.views, 
+  users.name AS createdBy,
+   users.role as creatorRole
   FROM announcements a
   LEFT JOIN views v ON a.viewId = v.id
-  LEFT JOIN admins ON a.announced_by = admins.user_id
-  WHERE a.status = 'active' AND a.is_deleted = 0
+  LEFT JOIN users ON a.created_by = users.user_id
+  WHERE a.is_deleted = 0
 `);
 
       if (announcements.length === 0) {
@@ -36,36 +46,64 @@ exports.announcements = [
 ];
 
 exports.addAnnouncement = [
-  body("announcement")
-    .notEmpty()
-    .withMessage("Announcement cannot be empty")
-    .trim()
-    .notEmpty()
-    .withMessage("Announcement should not be empty"),
-body("status")
+  body("content").trim().notEmpty().withMessage("Content cannot be empty"),
+
+  // targeted_groups
+  body("targetedGroups")
     .optional()
-    .isIn(["active", "draft"])
-    .withMessage("Status must be either 'active' or 'draft'"),
+    .isString()
+    .withMessage("Targeted groups must be a string"),
+
+  // title
+  body("title").trim().notEmpty().withMessage("Title cannot be empty"),
+
+  // priority (must be one of the allowed values)
+  body("priority")
+    .optional()
+    .isIn(["high", "medium", "low"])
+    .withMessage("Priority must be either 'high', 'medium', or 'low'"),
+
+  // audience
+  body("audience")
+    .optional()
+    .isString()
+    .withMessage("Audience must be a string"),
+
+  // status
+  body("status")
+    .optional()
+    .isIn(["published", "draft"])
+    .withMessage("Status must be either 'published' or 'draft'"),
   verifyToken,
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const announcedBy = req.user.id; // Assuming the user ID is stored in req.user.id
-    if (!announcedBy) {
+    const createdBy = req.user.id; // Assuming the user ID is stored in req.user.id
+    if (!createdBy) {
       return res.status(401).json({ error: "Unauthorized: User ID not found" });
     }
 
-    const { announcement, status } = req.body;
+    const { title, content, audience, priority, targetedGroups, status } =
+      req.body;
     try {
       //adding announcements
       const [viewResult] = await database.query(
         `INSERT INTO views (views) VALUES (0)`
       );
       await database.query(
-        `INSERT INTO announcements (announcement, announced_by, status ,viewId) VALUES (?, ?, ?, ?)`,
-        [announcement, announcedBy, status ,viewResult.insertId]
+        `INSERT INTO announcements (title, content ,created_by, audience, priority, targeted_groups ,status ,viewId) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          title,
+          content,
+          createdBy,
+          audience,
+          priority,
+          targetedGroups,
+          status,
+          viewResult.insertId,
+        ]
       );
 
       return res.status(200).json({
@@ -117,21 +155,34 @@ exports.deleteAnnouncement = [
 ];
 
 exports.updateAnnouncement = [
-  body("announcementId")
-    .notEmpty()
-    .withMessage("Announcement ID is required")
-    .isNumeric()
-    .withMessage("Announcement ID must be a number"),
-  body("announcement")
-    .notEmpty()
-    .withMessage("Announcement cannot be empty")
-    .trim()
-    .notEmpty()
-    .withMessage("Announcement should not be empty"),
+  body("content").trim().notEmpty().withMessage("Content cannot be empty"),
+
+  // targeted_groups
+  body("targetedGroups")
+    .optional()
+    .isString()
+    .withMessage("Targeted groups must be a string"),
+
+  // title
+  body("title").trim().notEmpty().withMessage("Title cannot be empty"),
+
+  // priority (must be one of the allowed values)
+  body("priority")
+    .optional()
+    .isIn(["high", "medium", "low"])
+    .withMessage("Priority must be either 'high', 'medium', or 'low'"),
+
+  // audience
+  body("audience")
+    .optional()
+    .isString()
+    .withMessage("Audience must be a string"),
+
+  // status
   body("status")
     .optional()
-    .isIn(["active", "draft"])
-    .withMessage("Status must be either 'active' or 'draft'"),
+    .isIn(["published", "draft"])
+    .withMessage("Status must be either 'published' or 'draft'"),
   verifyToken,
   async (req, res) => {
     const errors = validationResult(req);
@@ -147,10 +198,18 @@ exports.updateAnnouncement = [
     try {
       //updating announcements
       await database.query(
-        `
-         UPDATE announcements SET announcement = ?, status = ? WHERE ann_id = ? AND announced_by = ?
-        `,
-        [announcement, status, announcementId, userId]
+        `UPDATE announcements 
+SET 
+    title = ?, 
+    content = ?, 
+    audience = ?, 
+    priority = ?, 
+    targeted_groups = ?, 
+    status = ? 
+WHERE ann_id = ? AND created_by = ?`
+,
+        [title, content, audience, priority, targetedGroups, status, announcementId, userId]
+
       );
 
       return res.status(200).json({
@@ -163,5 +222,5 @@ exports.updateAnnouncement = [
         error,
       });
     }
-  }
+  },
 ];
