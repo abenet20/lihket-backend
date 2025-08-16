@@ -1,41 +1,50 @@
 const database = require("../dbControllers/db_connection.js");
 const verifyToken = require("../../middleware/verifyToken.js");
 
-
-exports.students = [verifyToken,
-    async(req, res) => {
+exports.students = [
+  verifyToken,
+  async (req, res) => {
     const [students] = await database.query(
-      `SELECT  users.user_id AS user_user_id,
-      users.name AS user_name,
-      users.username AS user_username,
-      users.role AS user_role,
-      students.student_id AS student_student_id,
-      students.name AS student_name,
-      students.age AS student_age,
-      students.gender AS student_gender,
-      students.phone AS student_phone,
-      students.grade AS student_grade,
-      students.section AS student_section,
-      parents.parent_id AS parent_parent_id,
-      parents.name AS parent_name,
-      parents.phone AS parent_phone
-   FROM users
-   JOIN students ON students.user_id = users.user_id
-   JOIN parents ON parents.student_id = students.student_id
-   WHERE users.role = ? AND is_deleted = 0`,
-      ["student"]
+      `SELECT students.student_id AS id,
+      students.name AS name,
+      students.age AS age,
+      students.gender AS gender,
+      students.phone AS phone,
+      students.grade AS grade,
+      classes.name AS className,
+      students.enrollment_date AS enrollmentDate,
+      users.email as email,
+      parents.parent_id AS parent_id,
+      parents.name AS parentName,
+      parents.phone AS parentPhone
+      
+   FROM students
+   JOIN users ON users.user_id = students.user_id
+   LEFT
+   JOIN parents ON parents.parent_id = students.parent_id
+   LEFT
+   JOIN classes ON classes.class_id = students.class_id
+   WHERE students.is_deleted = 0`
     );
-    
-    res.json(students);
+
+    if (students.length === 0) {
+      return res.status(404).json({ message: "No students found." });
     }
+
+    return res.status(201).json({
+      success: true,
+      students: students,
+    });
+  },
 ];
 
-exports.users = [verifyToken,
-    async(req, res) => {
+exports.users = [
+  verifyToken,
+  async (req, res) => {
     const [users] = await database.query(
       `SELECT user_id, name, username, role from users WHERE is_deleted = 0`
     );
-    
+
     res.json(users);
-    }
+  },
 ];
